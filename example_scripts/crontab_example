@@ -1,4 +1,7 @@
 # This is an example of a crontab file that executes the shell
 # script containing the virtual env & env variables.
 SHELL=/bin/bash
-* * * * * bash ~/path/to/shell_script  --<arg>
+# 7:00 PM CST (1:00 UTC)
+0 1 * * * bash ~/path/to/script --nightly
+# 7:00 AM – 6:00 PM CST (13:00 – 00:00 UTC)
+0 13-0 * * * bash ~/path/to/script --hourly
