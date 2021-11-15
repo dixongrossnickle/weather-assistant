@@ -1,0 +1,9 @@
+# pycache
+**/__pycache__
+
+# virtual env
+env/
+venv/
+
+# shell script with env variables
+weatherassistant
