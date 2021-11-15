@@ -1,4 +1,4 @@
 # This is an example of a crontab file that executes the shell
 # script containing the virtual env & env variables.
 SHELL=/bin/bash
-* * * * * bash ~/path/to/shell_script  --nightly
+* * * * * bash ~/path/to/shell_script  --<arg>
