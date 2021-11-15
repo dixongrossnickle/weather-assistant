@@ -1,0 +1,23 @@
+#!/bin/bash
+# This is an example of a script to activate the virtual environment
+# and set required environment variables. (executed by cron)
+
+# cd to project dir
+cd $(dirname $0)
+
+# Activate env
+source env/bin/activate
+
+# Set env variables here
+# EXPORT . . .
+#
+
+# Run Python script
+python src/app.py $1
+
+# Unset env variables
+# UNSET . . .
+#
+
+# Deactivate env
+deactivate
