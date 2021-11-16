@@ -13,7 +13,7 @@ source env/bin/activate
 #
 
 # Run Python script
-python src/app.py $1
+python src/run.py $1
 
 # Unset env variables
 # UNSET . . .
