@@ -2,7 +2,7 @@
 import sys
 from weather import *
 
-HELP_MESSAGE = "> weather.py <arg>\nValid args:"
+HELP_MESSAGE = "> python weather.py <arg>\nValid args:"
 VALID_ARGS = ['hourly', 'nightly', ]
 for arg in VALID_ARGS:
     HELP_MESSAGE += ('\n--' + arg)
