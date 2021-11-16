@@ -9,29 +9,23 @@ for arg in VALID_ARGS:
 
 
 def main(argv: list[str]):
-    if len(argv) == 0:
-        print('ERROR: 1 argument permitted (required).\n' + HELP_MESSAGE)
+    if len(argv) != 1:
+        print(f"ERROR: 1 argument {'permitted' if len(argv) else 'required'}.\n" + HELP_MESSAGE)
         sys.exit(2)
-    arg = argv[0]
-    match arg:
-        case '--hourly':
-            arg = 'h'
-        case '--nightly':
-            arg = 'n'
-        case _:
-            print('INVALID ARGUMENT\n' + HELP_MESSAGE)
-            sys.exit(2)
+
+    arg = argv[0].removeprefix('--')
+    if arg not in VALID_ARGS:
+        print(f'INVALID ARGUMENT: {arg}\n' + HELP_MESSAGE)
+        sys.exit(2)
 
     wa = WeatherAssistant()
-    if arg == 'h':
+    if arg == 'hourly':
         notification = wa.hourly_check()
-        if notification != '':
-            wa.send_sms(notification)
-
-    elif arg == 'n':
+    elif arg == 'nightly':
         notification = wa.nightly_check()
-        if notification != '':
-            wa.send_sms(notification)
+
+    if notification != '':
+        wa.send_sms(notification)
 
 
 if __name__ == "__main__":
