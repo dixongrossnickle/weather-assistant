@@ -1,6 +1,6 @@
 # weather-assistant
 
-I created this application to periodically check the weather forecast and send me notifications. It is scheduled to be executed periodically by cron (see [crontab example](https://github.com/dixongrossnickle/weather-assistant/blob/main/example_scripts/crontab_example)). The [shell script](https://github.com/dixongrossnickle/weather-assistant/blob/main/example_scripts/script_example) passes an argument that dictates the type of check to be run (hourly, nightly, etc.) to the [main Python script](https://github.com/dixongrossnickle/weather-assistant/blob/main/src/run.py).
+I created this application to periodically check the weather forecast and send me notifications. It is scheduled to be executed periodically by cron (see [crontab example](https://github.com/dixongrossnickle/weather-assistant/blob/main/example_scripts/crontab)). The [shell script](https://github.com/dixongrossnickle/weather-assistant/blob/main/example_scripts/exec) passes an argument that dictates the type of check to be run (hourly, nightly, etc.) to the [main Python script](https://github.com/dixongrossnickle/weather-assistant/blob/main/src/run.py).
 
 Python version: 3.10.0
 
