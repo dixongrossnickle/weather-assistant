@@ -3,19 +3,20 @@ import sys
 from weather import *
 
 HELP_MESSAGE = ">>> python ~/src/run.py <arg>\nValid args:"
-VALID_ARGS = ['hourly', 'nightly', ]
+VALID_ARGS = ('hourly', 'nightly', )
 for arg in VALID_ARGS:
     HELP_MESSAGE += ('\n--' + arg)
 
 
 def main(argv: list[str]):
     if len(argv) != 1:
-        print(f"ERROR: 1 argument {'permitted' if len(argv) else 'required'}.\n" + HELP_MESSAGE)
+        print(
+            f"ERROR: 1 argument {'permitted' if len(argv) else 'required'}.\n" + HELP_MESSAGE)
         sys.exit(2)
 
     arg = argv[0].removeprefix('--')
     if arg not in VALID_ARGS:
-        print(f'INVALID ARGUMENT: {arg}\n' + HELP_MESSAGE)
+        print(f"INVALID ARGUMENT: {arg}\n" + HELP_MESSAGE)
         sys.exit(2)
 
     wa = WeatherAssistant()
