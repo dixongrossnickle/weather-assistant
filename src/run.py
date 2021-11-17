@@ -15,7 +15,7 @@ def main(argv: list[str]):
             f"Invalid Argument Count: 1 argument {'permitted' if len(argv) else 'required'}.\n"
             + HELP_MESSAGE)
         sys.exit(2)
-    # Check argument
+    # Parse & validate argument
     arg = argv[0].removeprefix('--')
     if arg not in VALID_ARGS:
         print(f"Invalid Argument: {arg}\n" + HELP_MESSAGE)
@@ -23,7 +23,7 @@ def main(argv: list[str]):
     # Check the weather
     wa = WeatherAssistant()
     notification = wa.check_weather(arg)
-    # Check notification
+    # Check notification; send if not empty
     if notification != '':
         wa.send_sms(notification)
 
