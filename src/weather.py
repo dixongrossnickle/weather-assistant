@@ -79,18 +79,20 @@ class WeatherAssistant:
 
         return s + msg
 
-    def check_weather(self, freq: str):
+    def check_weather(self, check_type: str):
         """Takes the parsed (AND VALIDATED) command line argument, which determines
         what to check for. Returns a message if a notification was triggered, and
         an empty string otherwise."""
         msg = ''
-        match freq:
+        match check_type:
             case 'hourly':
                 hrs = 3  # range of forecast to check
                 check_low = False
             case 'nightly':
                 hrs = 12
                 check_low = True
+            case _:
+                raise ValueError(check_type)
         # Get forecast for next 12 hours
         forecast = self.get_forecast(12)
         # Check for rain
