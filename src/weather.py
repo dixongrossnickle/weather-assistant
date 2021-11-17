@@ -29,6 +29,7 @@ RainyHour = namedtuple('RainyHour', ['time', 'pct'])
 
 class WeatherAssistant:
     def __init__(self, location_str: str = None) -> None:
+        #TODO: Improve docstring
         """A class with methods for periodic weather monitoring and notifications."""
         self.__api_key = os.environ['ACCUWEATHER_API_KEY']
         self.__account_id = os.environ['TWILIO_ACCOUNT_SID']
@@ -47,11 +48,11 @@ class WeatherAssistant:
 
         return response.json()
 
-    def check_range_for_precip(self, forecast: list[dict], rnge: int) -> list[RainyHour]:
+    def check_for_precip(self, forecast: list[dict], hour_range: int) -> list[RainyHour]:
         """Checks the given range of the hourly forecast for precipitation.
         Returns a list of RainyHours (tuples containing the time and % chance)."""
         rainy_hours = []
-        for hour in forecast[:rnge]:
+        for hour in forecast[:hour_range]:
             if hour['PrecipitationProbability'] > 0:
                 rainy_hours.append(
                     RainyHour(
@@ -62,43 +63,45 @@ class WeatherAssistant:
 
         return rainy_hours
 
-    def hourly_check(self) -> str:
-        """Checks next 3 hours for precipitation. Returns a string containing
-        a notification if one was triggered, and an empty string otherwise."""
-        msg = ''
-        forecast = self.get_forecast(12)
-        rainy_hours = self.check_range_for_precip(forecast, 3)
-        # If list isn't empty, rain expected; append to notification.
-        if len(rainy_hours) > 0:
-            msg = self.format_precip_msg(rainy_hours, msg)
-
-        return msg
-
-    def nightly_check(self) -> str:
-        """Checks next 12 hours for precipitation, as well as the low temperature.
-        Returns a string containing a notification if one was triggered, and
-        an empty string otherwise."""
-        msg = ''
-        forecast = self.get_forecast(12)
-        rainy_hours = self.check_range_for_precip(forecast, 12)
-        if len(rainy_hours) > 0:
-            msg = self.format_precip_msg(rainy_hours, msg)
-        # On nightly run, check low temp. for tank heater notification
-        temps = [int(h['Temperature']['Value']) for h in forecast]
-        low = min(temps)
-        if low < 37:  # prepend to msg
-            s = f'Low of {low} degrees tonight. Turn on your tank heaters!'
-            s += '' if msg == '' else '\n\n'
-            msg = s + msg
-
-        return msg
-
-    def format_precip_msg(self, rainy_hours: list[RainyHour], msg: str) -> str:
+    def format_msg_precip(self, msg: str, rainy_hours: list[RainyHour]) -> str:
         """Appends the given list of RainyHours as formatted text to the given msg string."""
         msg += 'Precipitation expected:'
         for rh in rainy_hours:
             msg += ('\n' +
                     f"{rh.time.strftime('%-I:%M')}:".ljust(8) + f"{rh.pct}%")
+
+        return msg
+
+    def format_msg_low(self, msg: str, low: int) -> str:
+        """Prepends a tank heater reminder to msg."""
+        s = f'Low of {low} degrees tonight. Turn on your tank heaters!'
+        s += '' if msg == '' else '\n\n'
+
+        return s + msg
+
+    def check_weather(self, freq: str):
+        """Takes the parsed (AND VALIDATED) command line argument, which determines
+        what to check for. Returns a message if a notification was triggered, and
+        an empty string otherwise."""
+        msg = ''
+        match freq:
+            case 'hourly':
+                hrs = 3  # range of forecast to check
+                check_low = False
+            case 'nightly':
+                hrs = 12
+                check_low = True
+        # Get forecast for next 12 hours
+        forecast = self.get_forecast(12)
+        # Check for rain
+        rainy_hours = self.check_for_precip(forecast, hrs)
+        if len(rainy_hours):
+            msg = self.format_msg_precip(msg, rainy_hours)
+        # If nightly, check low temp
+        if check_low:
+            low = min([int(h['Temperature']['Value']) for h in forecast])
+            if low < 37:
+                msg = self.format_msg_low(msg, low)
 
         return msg
 

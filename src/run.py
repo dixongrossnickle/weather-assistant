@@ -22,10 +22,7 @@ def main(argv: list[str]):
         sys.exit(2)
     # Check the weather
     wa = WeatherAssistant()
-    if arg == 'hourly':
-        notification = wa.hourly_check()
-    elif arg == 'nightly':
-        notification = wa.nightly_check()
+    notification = wa.check_weather(arg)
     # Check notification
     if notification != '':
         wa.send_sms(notification)
