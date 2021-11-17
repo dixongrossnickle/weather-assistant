@@ -9,10 +9,7 @@ def location_key_search(api_key: str, query_str: str) -> str:
     """Calls AccuWeather location search API using the given query string
     and returns the first result."""
     request_url = "http://dataservice.accuweather.com/locations/v1/cities/search"
-    params = {
-        'q': query_str,
-        'apikey': api_key
-    }
+    params = {'q': query_str, 'apikey': api_key}
     results = requests.get(url=request_url, params=params).json()
 
     return results[0]['Key']
@@ -78,8 +75,9 @@ class WeatherAssistant:
         return msg
 
     def nightly_check(self) -> str:
-        """Almost the same as hourly check, but checks next 12 hours for precipitation
-        as well as nightly low temperature."""
+        """Checks next 12 hours for precipitation, as well as the low temperature.
+        Returns a string containing a notification if one was triggered, and
+        an empty string otherwise."""
         msg = ''
         forecast = self.get_forecast(12)
         rainy_hours = self.check_range_for_precip(forecast, 12)
