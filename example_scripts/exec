@@ -2,8 +2,9 @@
 # This is an example of a script to activate the virtual environment
 # and set required environment variables. (executed by cron)
 
-# cd to project dir
+# cd to 'secret' dir, then step back into project dir
 cd $(dirname $0)
+cd ../
 
 # Activate env
 source env/bin/activate
