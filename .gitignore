@@ -5,5 +5,5 @@
 env/
 venv/
 
-# shell script with env variables
-weatherassistant
+# env variables, etc.
+secret/
