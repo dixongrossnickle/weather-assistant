@@ -58,7 +58,7 @@ class WeatherAssistant:
         Returns a list of RainyHours (tuples containing the time and % chance)."""
         rainy_hours = []
         for hour in forecast[:hour_range]:
-            if hour['PrecipitationProbability'] > 0:
+            if hour['PrecipitationProbability'] > 9:
                 rainy_hours.append(
                     RainyHour(
                         datetime.fromisoformat(hour['DateTime']),
