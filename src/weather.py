@@ -21,7 +21,7 @@ RainyHour = namedtuple('RainyHour', ['time', 'pct'])
 
 
 class WeatherAssistant:
-    def __init__(self, location_str: str = None) -> None:
+    def __init__(self, location_str: str = None):
         """
         A class with methods for periodic weather monitoring and notifications.
 
@@ -84,7 +84,7 @@ class WeatherAssistant:
 
         return s + msg
 
-    def check_weather(self, check_type: str):
+    def check_weather(self, check_type: str) -> str:
         """Takes the parsed (AND VALIDATED) command line argument, which determines
         what to check for. Returns a message if a notification was triggered, and
         an empty string otherwise."""
@@ -112,7 +112,7 @@ class WeatherAssistant:
 
         return msg
 
-    def send_sms(self, message: str) -> None:
+    def send_sms(self, message: str):
         """Sends the given string as an SMS message through Twilio."""
         client = Client(self.__account_id, self.__auth_token)
         sms = client.messages.create(
