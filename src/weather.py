@@ -4,24 +4,17 @@ from collections import namedtuple
 from datetime import datetime
 from twilio.rest import Client
 
+ENV_VAR_ERROR = "Environment variable {} not found. Make sure it has been set in the current environment."
+
 
 def location_key_search(api_key: str, query_str: str) -> str:
     """Calls AccuWeather location search API using the given query string
     and returns the first result."""
     request_url = "http://dataservice.accuweather.com/locations/v1/cities/search"
     params = {'q': query_str, 'apikey': api_key}
-    results = requests.get(url=request_url, params=params).json()
-
-    return results[0]['Key']
-
-
-def get_location_key(api_key: str, location_str: str | None) -> str:
-    """If a string is passed, calls location_key_search and returns the first result.
-    If None, returns the default location key from the environment."""
-    if location_str is None:
-        return os.environ['DEFAULT_LOCATION']
-    else:
-        return location_key_search(api_key, location_str)
+    response = requests.get(url=request_url, params=params)
+    # response JSON is an array of search results
+    return response.json()[0]['Key']
 
 
 RainyHour = namedtuple('RainyHour', ['time', 'pct'])
@@ -29,14 +22,26 @@ RainyHour = namedtuple('RainyHour', ['time', 'pct'])
 
 class WeatherAssistant:
     def __init__(self, location_str: str = None) -> None:
-        #TODO: Improve docstring
-        """A class with methods for periodic weather monitoring and notifications."""
-        self.__api_key = os.environ['ACCUWEATHER_API_KEY']
-        self.__account_id = os.environ['TWILIO_ACCOUNT_SID']
-        self.__auth_token = os.environ['TWILIO_AUTH_TOKEN']
-        self.__from = os.environ['FROM_PHONE_NUMBER']
-        self.__to = os.environ['TO_PHONE_NUMBER']
-        self.location_key = get_location_key(self.__api_key, location_str)
+        """
+        A class with methods for periodic weather monitoring and notifications.
+
+        If None is passed, the DEFAULT_LOCATION environment variable will be used as
+        the location key. If string is passed, the location key is retrieved from
+        AccuWeather's Locations search API (1st search result).
+        """
+        try:
+            self.__api_key = os.environ['ACCUWEATHER_API_KEY']
+            self.__account_id = os.environ['TWILIO_ACCOUNT_SID']
+            self.__auth_token = os.environ['TWILIO_AUTH_TOKEN']
+            self.__from = os.environ['FROM_PHONE_NUMBER']
+            self.__to = os.environ['TO_PHONE_NUMBER']
+            if location_str is None:
+                self.location_key = os.environ['DEFAULT_LOCATION']
+            else:
+                self.location_key = location_key_search(location_str)
+
+        except KeyError as e:
+            raise KeyError(ENV_VAR_ERROR.format(str(e))) from e
 
     def get_forecast(self, hours: int) -> list[dict]:
         """Returns the hourly forecast for the next n hours (hours must be 1 or 12)."""
