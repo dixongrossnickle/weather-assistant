@@ -23,8 +23,8 @@ class WeatherAssistant:
         """
         A class with methods for periodic weather monitoring and notifications.
 
-        If None is passed, the DEFAULT_LOCATION environment variable will be used as
-        the location key. If string is passed, the location key is retrieved from
+        If None is passed to init, the DEFAULT_LOCATION environment variable will be used
+        as the location key. If string is passed, the location key is retrieved from
         AccuWeather's Locations search API (1st search result).
         """
         try:
