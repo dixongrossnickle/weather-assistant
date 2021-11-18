@@ -4,8 +4,6 @@ from collections import namedtuple
 from datetime import datetime
 from twilio.rest import Client
 
-ENV_VAR_ERROR = "Environment variable {} not found. Make sure it has been set in the current environment."
-
 
 def location_key_search(api_key: str, query_str: str) -> str:
     """Calls AccuWeather location search API using the given query string
@@ -41,7 +39,8 @@ class WeatherAssistant:
                 self.location_key = location_key_search(location_str)
 
         except KeyError as e:
-            raise KeyError(ENV_VAR_ERROR.format(str(e))) from e
+            env_var_error_msg = f"Environment variable {str(e)} not found. Make sure it has been set in the current environment."
+            raise KeyError(env_var_error_msg) from e
 
     def get_forecast(self, hours: int) -> list[dict]:
         """Returns the hourly forecast for the next n hours (hours must be 1 or 12)."""
