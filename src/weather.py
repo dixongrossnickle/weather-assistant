@@ -38,10 +38,10 @@ class WeatherAssistant:
             if location_str is None:
                 self.location_key = os.environ['DEFAULT_LOCATION']
             else:
-                self.location_key = location_key_search(location_str)
+                self.location_key = location_key_search(self.__api_key, location_str)
 
         except KeyError as e:
-            env_var_error_msg = f"Environment variable {str(e)} not found. Make sure it has been set in the current environment."
+            env_var_error_msg = f"Env. variable {str(e)} not found. Make sure it has been set in the current environment."
             raise KeyError(env_var_error_msg) from e
 
     def get_forecast(self, n: int) -> list[dict]:
