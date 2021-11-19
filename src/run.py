@@ -19,12 +19,12 @@ def main(argv: list[str]):
     if arg not in VALID_ARGS:
         print(f"Invalid Argument: {arg}", HELP_MESSAGE, sep='\n')
         sys.exit(2)
-    # Check the weather
+    # Execute appropriate method
     wa = WeatherAssistant()
-    notification = wa.check_weather(arg)
-    # Check notification; send if not empty
-    if notification != '':
-        wa.send_sms(notification)
+    if arg == 'hourly':
+        wa.exec_hourly()
+    elif arg == 'nightly':
+        wa.exec_nightly()
 
 
 if __name__ == "__main__":

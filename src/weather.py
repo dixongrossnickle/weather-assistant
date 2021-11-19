@@ -1,6 +1,5 @@
 import os
 import requests
-from collections import namedtuple
 from datetime import datetime
 from twilio.rest import Client
 
@@ -11,14 +10,18 @@ def location_key_search(api_key: str, query_str: str) -> str:
     request_url = "http://dataservice.accuweather.com/locations/v1/cities/search"
     params = {'q': query_str, 'apikey': api_key}
     response = requests.get(url=request_url, params=params)
-    # response JSON is an array of search results
+
     return response.json()[0]['Key']
 
 
-RainyHour = namedtuple('RainyHour', ['time', 'pct'])
+def has_rain(hour: dict) -> bool:
+    """Convenience function for checking the precip. probability for a given hour."""
+    return hour['PrecipitationProbability'] > 9
 
 
 class WeatherAssistant:
+    location_key = None
+
     def __init__(self, location_str: str = None):
         """
         A class with methods for periodic weather monitoring and notifications.
@@ -42,74 +45,39 @@ class WeatherAssistant:
             env_var_error_msg = f"Environment variable {str(e)} not found. Make sure it has been set in the current environment."
             raise KeyError(env_var_error_msg) from e
 
-    def get_forecast(self, hours: int) -> list[dict]:
-        """Returns the hourly forecast for the next n hours (hours must be 1 or 12)."""
-        if hours not in (1, 12):
+    def get_forecast(self, n: int) -> list[dict]:
+        """Returns the forecast for the next n hours (n must be 1 or 12)."""
+        if n not in (1, 12):
             raise ValueError("n must be 1 or 12.")
-        request_url = f"http://dataservice.accuweather.com/forecasts/v1/hourly/{hours}hour/{self.location_key}"
+        request_url = f"http://dataservice.accuweather.com/forecasts/v1/hourly/{n}hour/{self.location_key}"
         params = {'apikey': self.__api_key}
         response = requests.get(url=request_url, params=params)
 
         return response.json()
 
-    def check_for_precip(self, forecast: list[dict], hour_range: int) -> list[RainyHour]:
+    def check_for_rain(self, forecast: list[dict], hour_range: int = 12) -> str:
         """Checks the given range of the hourly forecast for precipitation.
-        Returns a list of RainyHours (tuples containing the time and % chance)."""
-        rainy_hours = []
-        for hour in forecast[:hour_range]:
-            if hour['PrecipitationProbability'] > 9:
-                rainy_hours.append(
-                    RainyHour(
-                        datetime.fromisoformat(hour['DateTime']),
-                        hour['PrecipitationProbability']
-                    )
-                )
-
-        return rainy_hours
-
-    def format_msg_precip(self, msg: str, rainy_hours: list[RainyHour]) -> str:
-        """Appends the given list of RainyHours as formatted text to the given msg string."""
-        msg += 'Precipitation expected:'
-        for rh in rainy_hours:
-            msg += ('\n' +
-                    f"{rh.time.strftime('%-I:%M')}:".ljust(8) + f"{rh.pct}%")
-
-        return msg
-
-    def format_msg_low(self, msg: str, low: int) -> str:
-        """Prepends a tank heater reminder to msg."""
-        s = f'Low of {low} degrees tonight. Turn on your tank heaters!'
-        s += '' if msg == '' else '\n\n'
-
-        return s + msg
-
-    def check_weather(self, check_type: str) -> str:
-        """Takes the parsed (AND VALIDATED) command line argument, which determines
-        what to check for. Returns a message if a notification was triggered, and
-        an empty string otherwise."""
+        Returns an empty string if none expected, and a notification message otherwise.
+        If range is omitted, defaults to 12 (the full range)."""
         msg = ''
-        match check_type:
-            case 'hourly':
-                hrs = 3  # range of forecast to check
-                check_low = False
-            case 'nightly':
-                hrs = 12
-                check_low = True
-            case _:
-                raise ValueError(check_type)
-        # Get forecast for next 12 hours
-        forecast = self.get_forecast(12)
-        # Check for rain
-        rainy_hours = self.check_for_precip(forecast, hrs)
-        if len(rainy_hours):
-            msg = self.format_msg_precip(msg, rainy_hours)
-        # If nightly, check low temp
-        if check_low:
-            low = min([int(h['Temperature']['Value']) for h in forecast])
-            if low < 37:
-                msg = self.format_msg_low(msg, low)
+        for hour in forecast[:hour_range]:
+            if has_rain(hour):
+                time = datetime.fromisoformat(hour['DateTime']).strftime('%-I:%M')
+                pc = hour['PrecipitationProbability']
+                msg += ('\n' + f'{time}:'.ljust(8) + f'{pc}%')
 
-        return msg
+        return 'Precipitation expected:' + msg if msg else msg
+
+    def check_low_temp(self, forecast: list[dict], hour_range: int = 12) -> str:
+        """Checks low temperature of the given range of the forecast. Returns
+        a notification message if very cold, and an empty string otherwise.
+        If range is omitted, defaults to 12 (the full range)."""
+        temps = [int(x['Temperature']['Value']) for x in forecast[:hour_range]]
+        low = min(temps)
+        if low < 37:
+            return f'Low of {low} degrees tonight. Turn on your tank heaters!'
+
+        return ''
 
     def send_sms(self, message: str):
         """Sends the given string as an SMS message through Twilio."""
@@ -121,3 +89,24 @@ class WeatherAssistant:
         )
         # TODO: Better way to log message status
         print(f'Sent: {sms.date_created}')
+
+    def exec_hourly(self):
+        """Executed hourly — checks the next 3 hours' precip. probability."""
+        forecast = self.get_forecast(12)
+        # Check 3 hrs ahead for rain
+        msg = self.check_for_rain(forecast, 3)
+        if msg:
+            self.send_sms(msg)
+
+    def exec_nightly(self):
+        """Executed nightly — checks the next 12 hours' precip. probability,
+        as well as the low temperature for the night."""
+        forecast = self.get_forecast(12)
+        # Check low temp
+        msg = self.check_low_temp(forecast)
+        if msg:
+            msg += '\n\n'
+        # Check rain thru night
+        msg += self.check_for_rain(forecast)
+        if msg:
+            self.send_sms(msg)
