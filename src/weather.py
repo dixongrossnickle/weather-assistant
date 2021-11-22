@@ -52,8 +52,9 @@ class WeatherAssistant:
         # Forecast description
         msg += forecast['Day']['LongPhrase'] + '.'
         # Check for rain
-        if forecast['Day']['HasPrecipitation']:
-            msg += ('\n' + self.rain_check(forecast, time_of_day=1))
+        precip_msg = self.rain_check(forecast['Day'])
+        if precip_msg:
+            msg += (' ' + precip_msg)
 
         self.send_sms(msg)
 
@@ -73,7 +74,7 @@ class WeatherAssistant:
             self.send_sms(msg)
 
     def exec_nightly(self) -> None:
-        """Generates a nightly forecast summary and sends as a SMS message."""
+        """Generates a nightly forecast summary and sends as a SMS message (similar to exec_daily)."""
         forecast = self.get_daily_forecast()['DailyForecasts'][0]
         msg = "Today's forecast: "
         # Check low temp;
@@ -83,9 +84,10 @@ class WeatherAssistant:
         msg += ' \u2014 turn on your tank heaters! ' if low <= 36 else '. '
         # Description
         msg += forecast['Night']['LongPhrase'] + '.'
-        # Check for precipitation
-        if forecast['Night']['HasPrecipitation']:
-            msg += ('\n' + self.rain_check(forecast, time_of_day=2))
+        # Precipitation
+        precip_msg = self.rain_check(forecast['Night'])
+        if precip_msg:
+            msg += (' ' + precip_msg)
 
         self.send_sms(msg)
 
@@ -107,19 +109,18 @@ class WeatherAssistant:
 
         return response.json()
 
-    def rain_check(self, daily_forecast: dict, time_of_day: int = 1) -> str:
-        """Takes a daily forecast (dict-like) and the time of day (1: day, 2: night).
-        Returns a message about the expected precipitation."""
-        if time_of_day not in (1, 2):
-            raise ValueError("time_of_day must be 1 (day) or 2 (night).")
-        key = 'Day' if time_of_day == 1 else 'Night'
-        n_hours = daily_forecast[key]['HoursOfPrecipitation']
-        intensity = daily_forecast[key]['PrecipitationIntensity']
-        kind = daily_forecast[key]['PrecipitationType'].lower()
-        if kind == 'mixed':
-            kind += ' precip.'
+    def rain_check(self, day: dict) -> str:
+        """Takes a day (or night) value (dict-like) from a daily forecast as input.
+        Returns a notification if precipitation is expected, and an empty string otherwise."""
+        if day['HasPrecipitation']:
+            return "{} {} expected for {} hours.".format(
+                # These will be null if HasPrecipitation is False:
+                day['PrecipitationIntensity'],
+                day['PrecipitationType'].lower(),
+                day['HoursOfPrecipitation']
+            )
 
-        return f'{intensity} {kind} expected for {n_hours} hours.'
+        return ''
 
     def send_sms(self, message: str) -> None:
         """Sends the given string as an SMS message through Twilio."""
