@@ -4,8 +4,8 @@
 # so times are in UTC.
 SHELL=/bin/bash
 
-# Minute 0 of every hour from 7:00-18:00 CST, every day
-0 13-23,0 * * * bash ~/path/to/script --hourly
+# Minute 0 of every hour from 8:00-18:00 CST, every day
+0 14-23,0 * * * bash ~/path/to/script --hourly
 
-# Every day at 19:00 CST
-0 1 * * * bash ~/path/to/script --nightly
+# Every day at 7:00 am CST
+0 13 * * * bash ~/path/to/script --daily
