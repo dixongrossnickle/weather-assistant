@@ -84,6 +84,21 @@ class WeatherAssistant:
         # TODO: Better way to log message status
         print(f'Sent: {sms.date_created}')
 
+    def exec_hourly(self) -> None:
+        """Executed hourly — checks the next 3 hours' precip. probability and sends a notification if present."""
+        msg = ''
+        forecast = self.get_hourly_forecast(12)
+        # Check 3 hrs ahead for rain
+        for hour in forecast[:3]:
+            if hour['PrecipitationProbability'] >= 20:
+                time = datetime.fromisoformat(hour['DateTime']).strftime('%-I:%M')
+                pc = hour['PrecipitationProbability']
+                msg += ('\n' + f'{time}:'.ljust(8) + f'{pc}%')
+
+        if msg:
+            msg = 'Precipitation expected:' + msg
+            self.send_sms(msg)
+
     def exec_daily(self) -> None:
         """Executed daily (in the morning) — generates a forecast summary and sends as a SMS message."""
         forecast = self.get_daily_forecast()['DailyForecasts'][0]
@@ -99,21 +114,6 @@ class WeatherAssistant:
             msg += (' ' + precip_msg)
 
         self.send_sms(msg)
-
-    def exec_hourly(self) -> None:
-        """Executed hourly — checks the next 3 hours' precip. probability and sends a notification if present."""
-        msg = ''
-        forecast = self.get_hourly_forecast(12)
-        # Check 3 hrs ahead for rain
-        for hour in forecast[:3]:
-            if hour['PrecipitationProbability'] >= 20:
-                time = datetime.fromisoformat(hour['DateTime']).strftime('%-I:%M')
-                pc = hour['PrecipitationProbability']
-                msg += ('\n' + f'{time}:'.ljust(8) + f'{pc}%')
-
-        if msg:
-            msg = 'Precipitation expected:' + msg
-            self.send_sms(msg)
 
     def exec_nightly(self) -> None:
         """Generates a nightly forecast summary and sends as a SMS message (similar to exec_daily)."""
