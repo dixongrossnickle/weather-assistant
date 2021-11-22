@@ -2,7 +2,7 @@
 import sys
 from weather import *
 
-VALID_ARGS = ('hourly', 'nightly', )
+VALID_ARGS = ('daily', 'hourly', 'nightly', )
 
 HELP_MESSAGE = (">>> python run.py <arg>\nValid args:\n" +
                 '\n'.join([f'--{arg}' for arg in VALID_ARGS]))
@@ -21,7 +21,9 @@ def main(argv: list[str]):
         sys.exit(2)
     # Execute appropriate method
     wa = WeatherAssistant()
-    if arg == 'hourly':
+    if arg == 'daily':
+        wa.exec_daily()
+    elif arg == 'hourly':
         wa.exec_hourly()
     elif arg == 'nightly':
         wa.exec_nightly()
