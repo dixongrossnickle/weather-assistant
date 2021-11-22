@@ -45,7 +45,7 @@ class WeatherAssistant:
     def exec_daily(self) -> None:
         """Executed daily (in the morning) — generates a forecast summary and sends as a SMS message."""
         forecast = self.get_daily_forecast()['DailyForecasts'][0]
-        msg = "Today's forecast: "
+        msg = "Good morning! Here's today's forecast:\n"
         # Check high temp
         high = int(forecast['Temperature']['Maximum']['Value'])
         msg += f'High of {high} degrees. '
@@ -59,7 +59,7 @@ class WeatherAssistant:
         self.send_sms(msg)
 
     def exec_hourly(self) -> None:
-        """Executed hourly — checks the next 3 hours' precip. probability."""
+        """Executed hourly — checks the next 3 hours' precip. probability and sends a notification if present."""
         msg = ''
         forecast = self.get_hourly_forecast(12)
         # Check 3 hrs ahead for rain
@@ -76,9 +76,8 @@ class WeatherAssistant:
     def exec_nightly(self) -> None:
         """Generates a nightly forecast summary and sends as a SMS message (similar to exec_daily)."""
         forecast = self.get_daily_forecast()['DailyForecasts'][0]
-        msg = "Today's forecast: "
-        # Check low temp;
-        # add tank heater reminder if close to freezing
+        msg = "Here's tonight's forecast:\n"
+        # Check low temp; add tank heater reminder if cold
         low = int(forecast['Temperature']['Minimum']['Value'])
         msg += f'Low of {low} degrees'
         msg += ' \u2014 turn on your tank heaters! ' if low <= 36 else '. '
