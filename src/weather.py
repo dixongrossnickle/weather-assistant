@@ -42,6 +42,48 @@ class WeatherAssistant:
             env_var_error_msg = f"Env. variable {str(e)} not found. Make sure it has been set in the current environment."
             raise KeyError(env_var_error_msg) from e
 
+    def get_hourly_forecast(self, n: int) -> list[dict]:
+        """Returns the forecast for the next n hours (n must be 1 or 12)."""
+        if n not in (1, 12):
+            raise ValueError("n must be 1 or 12.")
+        request_url = f"http://dataservice.accuweather.com/forecasts/v1/hourly/{n}hour/{self.location_key}"
+        params = {'apikey': self.__api_key}
+        response = requests.get(url=request_url, params=params)
+        # See ../examples/http_responses/hourly
+        return response.json()
+
+    def get_daily_forecast(self) -> dict:
+        """Returns the daily forecast for one day."""
+        request_url = f"http://dataservice.accuweather.com/forecasts/v1/daily/1day/{self.location_key}"
+        params = {'apikey': self.__api_key, 'details': True}
+        response = requests.get(url=request_url, params=params)
+        # See ../examples/http_responses/daily
+        return response.json()
+
+    def rain_check(self, day: dict) -> str:
+        """Takes a day (or night) value (dict-like) from a daily forecast as input.
+        Returns a notification if precipitation is expected, and an empty string otherwise."""
+        if day['HasPrecipitation']:
+            return "{} {} expected for {} hours.".format(
+                # These will be null if HasPrecipitation is False:
+                day['PrecipitationIntensity'],
+                day['PrecipitationType'].lower(),
+                day['HoursOfPrecipitation']
+            )
+
+        return ''
+
+    def send_sms(self, message: str) -> None:
+        """Sends the given string as an SMS message through Twilio."""
+        client = Client(self.__account_id, self.__auth_token)
+        sms = client.messages.create(
+            body=message,
+            from_=self.__from,
+            to=self.__to
+        )
+        # TODO: Better way to log message status
+        print(f'Sent: {sms.date_created}')
+
     def exec_daily(self) -> None:
         """Executed daily (in the morning) — generates a forecast summary and sends as a SMS message."""
         forecast = self.get_daily_forecast()['DailyForecasts'][0]
@@ -89,45 +131,3 @@ class WeatherAssistant:
             msg += (' ' + precip_msg)
 
         self.send_sms(msg)
-
-    def get_hourly_forecast(self, n: int) -> list[dict]:
-        """Returns the forecast for the next n hours (n must be 1 or 12)."""
-        if n not in (1, 12):
-            raise ValueError("n must be 1 or 12.")
-        request_url = f"http://dataservice.accuweather.com/forecasts/v1/hourly/{n}hour/{self.location_key}"
-        params = {'apikey': self.__api_key}
-        response = requests.get(url=request_url, params=params)
-
-        return response.json()
-
-    def get_daily_forecast(self) -> dict:
-        """Returns the daily forecast for one day."""
-        request_url = f"http://dataservice.accuweather.com/forecasts/v1/daily/1day/{self.location_key}"
-        params = {'apikey': self.__api_key, 'details': True}
-        response = requests.get(url=request_url, params=params)
-
-        return response.json()
-
-    def rain_check(self, day: dict) -> str:
-        """Takes a day (or night) value (dict-like) from a daily forecast as input.
-        Returns a notification if precipitation is expected, and an empty string otherwise."""
-        if day['HasPrecipitation']:
-            return "{} {} expected for {} hours.".format(
-                # These will be null if HasPrecipitation is False:
-                day['PrecipitationIntensity'],
-                day['PrecipitationType'].lower(),
-                day['HoursOfPrecipitation']
-            )
-
-        return ''
-
-    def send_sms(self, message: str) -> None:
-        """Sends the given string as an SMS message through Twilio."""
-        client = Client(self.__account_id, self.__auth_token)
-        sms = client.messages.create(
-            body=message,
-            from_=self.__from,
-            to=self.__to
-        )
-        # TODO: Better way to log message status
-        print(f'Sent: {sms.date_created}')
