@@ -5,7 +5,7 @@
 SHELL=/bin/bash
 
 # Minute 0 of every hour from 8:00-18:00 CST, every day
-0 14-23,0 * * * bash ~/path/to/script --hourly
+0 14-23,0 * * * bash ~/path/to/script.sh --hourly
 
 # Every day at 7:00 am CST
-0 13 * * * bash ~/path/to/script --daily
+0 13 * * * bash ~/path/to/script.sh --daily
