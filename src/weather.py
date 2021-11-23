@@ -86,48 +86,52 @@ class WeatherAssistant:
 
     def exec_hourly(self) -> None:
         """Executed hourly — checks the next 3 hours' precip. probability and sends a notification if present."""
-        msg = ''
+        msg = []
         forecast = self.get_hourly_forecast(12)
         # Check 3 hrs ahead for rain
         for hour in forecast[:3]:
             if hour['PrecipitationProbability'] >= 20:
                 time = datetime.fromisoformat(hour['DateTime']).strftime('%-I:%M')
                 pc = hour['PrecipitationProbability']
-                msg += ('\n' + f'{time}:'.ljust(8) + f'{pc}%')
+                msg.append(f'{time}:'.ljust(8) + f'{pc}%')
 
         if msg:
-            msg = 'Precipitation expected:' + msg
-            self.send_sms(msg)
+            msg.insert(0, 'Precipitation expected:')
+            self.send_sms('\n'.join(msg))
 
     def exec_daily(self) -> None:
         """Executed daily (in the morning) — generates a forecast summary and sends as a SMS message."""
         forecast = self.get_daily_forecast()['DailyForecasts'][0]
-        msg = "Good morning! Here's today's forecast:\n"
+        msg = ["Good morning! Here's today's forecast:"]
+        # Forecast description
+        msg.append(forecast['Day']['LongPhrase'] + '.')
         # Check high temp
         high = int(forecast['Temperature']['Maximum']['Value'])
-        msg += f'High of {high} degrees. '
-        # Forecast description
-        msg += forecast['Day']['LongPhrase'] + '.'
+        msg.append(f'High of {high} degrees.')
         # Check for rain
         precip_msg = self.rain_check(forecast['Day'])
         if precip_msg:
-            msg += (' ' + precip_msg)
+            msg.append(precip_msg)
 
-        self.send_sms(msg)
+        self.send_sms(' '.join(msg))
 
     def exec_nightly(self) -> None:
         """Generates a nightly forecast summary and sends as a SMS message (similar to exec_daily)."""
         forecast = self.get_daily_forecast()['DailyForecasts'][0]
-        msg = "Here's tonight's forecast:\n"
+        msg = ["Here's tonight's forecast:"]
+        # Description
+        msg.append(forecast['Night']['LongPhrase'] + '.')
         # Check low temp; add tank heater reminder if cold
         low = int(forecast['Temperature']['Minimum']['Value'])
-        msg += f'Low of {low} degrees'
-        msg += ' \u2014 turn on your tank heaters! ' if low <= 36 else '. '
-        # Description
-        msg += forecast['Night']['LongPhrase'] + '.'
+        temp_msg = f'Low of {low} degrees'
+        if low <= 36:
+            temp_msg += ' \u2014 turn on your tank heaters!'
+        else:
+            temp_msg += '.'
+        msg.append(temp_msg)
         # Precipitation
         precip_msg = self.rain_check(forecast['Night'])
         if precip_msg:
-            msg += (' ' + precip_msg)
+            msg.append(precip_msg)
 
-        self.send_sms(msg)
+        self.send_sms(' '.join(msg))
