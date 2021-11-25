@@ -90,7 +90,7 @@ class WeatherAssistant:
         forecast = self.get_hourly_forecast(12)
         # Check 3 hrs ahead for rain
         for hour in forecast[:3]:
-            if hour['PrecipitationProbability'] >= 20:
+            if hour['PrecipitationProbability'] >= 40:
                 time = datetime.fromisoformat(hour['DateTime']).strftime('%-I:%M')
                 pc = hour['PrecipitationProbability']
                 msg.append(f'{time}:'.ljust(8) + f'{pc}%')
