@@ -1,195 +1,109 @@
-// Example response for 12 hours of hourly forecast
+// Example response for 1 hour of hourly forecast ('details' = true)
 [
   {
-    "DateTime": "2021-11-22T22:00:00+00:00",
-    "EpochDateTime": 1637618400,
-    "WeatherIcon": 35,
-    "IconPhrase": "Partly cloudy",
-    "HasPrecipitation": false,
-    "IsDaylight": false,
-    "Temperature": {
-      "Value": 42,
-      "Unit": "F",
-      "UnitType": 18
-    },
-    "PrecipitationProbability": 1,
-    "MobileLink": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=1&hbhhour=22&lang=en-us",
-    "Link": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=1&hbhhour=22&lang=en-us"
-  },
-  {
-    "DateTime": "2021-11-22T23:00:00+00:00",
-    "EpochDateTime": 1637622000,
-    "WeatherIcon": 35,
-    "IconPhrase": "Partly cloudy",
-    "HasPrecipitation": false,
-    "IsDaylight": false,
-    "Temperature": {
-      "Value": 42,
-      "Unit": "F",
-      "UnitType": 18
-    },
-    "PrecipitationProbability": 1,
-    "MobileLink": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=1&hbhhour=23&lang=en-us",
-    "Link": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=1&hbhhour=23&lang=en-us"
-  },
-  {
-    "DateTime": "2021-11-23T00:00:00+00:00",
-    "EpochDateTime": 1637625600,
-    "WeatherIcon": 35,
-    "IconPhrase": "Partly cloudy",
-    "HasPrecipitation": false,
-    "IsDaylight": false,
-    "Temperature": {
-      "Value": 41,
-      "Unit": "F",
-      "UnitType": 18
-    },
-    "PrecipitationProbability": 1,
-    "MobileLink": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=0&lang=en-us",
-    "Link": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=0&lang=en-us"
-  },
-  {
-    "DateTime": "2021-11-23T01:00:00+00:00",
-    "EpochDateTime": 1637629200,
-    "WeatherIcon": 35,
-    "IconPhrase": "Partly cloudy",
-    "HasPrecipitation": false,
-    "IsDaylight": false,
-    "Temperature": {
-      "Value": 40,
-      "Unit": "F",
-      "UnitType": 18
-    },
-    "PrecipitationProbability": 1,
-    "MobileLink": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=1&lang=en-us",
-    "Link": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=1&lang=en-us"
-  },
-  {
-    "DateTime": "2021-11-23T02:00:00+00:00",
-    "EpochDateTime": 1637632800,
-    "WeatherIcon": 35,
-    "IconPhrase": "Partly cloudy",
-    "HasPrecipitation": false,
-    "IsDaylight": false,
-    "Temperature": {
-      "Value": 39,
-      "Unit": "F",
-      "UnitType": 18
-    },
-    "PrecipitationProbability": 1,
-    "MobileLink": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=2&lang=en-us",
-    "Link": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=2&lang=en-us"
-  },
-  {
-    "DateTime": "2021-11-23T03:00:00+00:00",
-    "EpochDateTime": 1637636400,
-    "WeatherIcon": 35,
-    "IconPhrase": "Partly cloudy",
-    "HasPrecipitation": false,
-    "IsDaylight": false,
-    "Temperature": {
-      "Value": 38,
-      "Unit": "F",
-      "UnitType": 18
-    },
-    "PrecipitationProbability": 1,
-    "MobileLink": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=3&lang=en-us",
-    "Link": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=3&lang=en-us"
-  },
-  {
-    "DateTime": "2021-11-23T04:00:00+00:00",
-    "EpochDateTime": 1637640000,
-    "WeatherIcon": 35,
-    "IconPhrase": "Partly cloudy",
-    "HasPrecipitation": false,
-    "IsDaylight": false,
-    "Temperature": {
-      "Value": 38,
-      "Unit": "F",
-      "UnitType": 18
-    },
-    "PrecipitationProbability": 1,
-    "MobileLink": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=4&lang=en-us",
-    "Link": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=4&lang=en-us"
-  },
-  {
-    "DateTime": "2021-11-23T05:00:00+00:00",
-    "EpochDateTime": 1637643600,
-    "WeatherIcon": 35,
-    "IconPhrase": "Partly cloudy",
-    "HasPrecipitation": false,
-    "IsDaylight": false,
-    "Temperature": {
-      "Value": 38,
-      "Unit": "F",
-      "UnitType": 18
-    },
-    "PrecipitationProbability": 1,
-    "MobileLink": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=5&lang=en-us",
-    "Link": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=5&lang=en-us"
-  },
-  {
-    "DateTime": "2021-11-23T06:00:00+00:00",
-    "EpochDateTime": 1637647200,
-    "WeatherIcon": 35,
-    "IconPhrase": "Partly cloudy",
-    "HasPrecipitation": false,
-    "IsDaylight": false,
-    "Temperature": {
-      "Value": 38,
-      "Unit": "F",
-      "UnitType": 18
-    },
-    "PrecipitationProbability": 1,
-    "MobileLink": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=6&lang=en-us",
-    "Link": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=6&lang=en-us"
-  },
-  {
-    "DateTime": "2021-11-23T07:00:00+00:00",
-    "EpochDateTime": 1637650800,
-    "WeatherIcon": 3,
-    "IconPhrase": "Partly sunny",
+    "DateTime": "2021-11-26T14:00:00-06:00",
+    "EpochDateTime": 1637956800,
+    "WeatherIcon": 1,
+    "IconPhrase": "Sunny",
     "HasPrecipitation": false,
     "IsDaylight": true,
     "Temperature": {
-      "Value": 37,
+      "Value": 56,
       "Unit": "F",
       "UnitType": 18
     },
-    "PrecipitationProbability": 0,
-    "MobileLink": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=7&lang=en-us",
-    "Link": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=7&lang=en-us"
-  },
-  {
-    "DateTime": "2021-11-23T08:00:00+00:00",
-    "EpochDateTime": 1637654400,
-    "WeatherIcon": 3,
-    "IconPhrase": "Partly sunny",
-    "HasPrecipitation": false,
-    "IsDaylight": true,
-    "Temperature": {
-      "Value": 36,
+    "RealFeelTemperature": {
+      "Value": 62,
+      "Unit": "F",
+      "UnitType": 18,
+      "Phrase": "Cool"
+    },
+    "RealFeelTemperatureShade": {
+      "Value": 57,
+      "Unit": "F",
+      "UnitType": 18,
+      "Phrase": "Cool"
+    },
+    "WetBulbTemperature": {
+      "Value": 43,
       "Unit": "F",
       "UnitType": 18
     },
-    "PrecipitationProbability": 0,
-    "MobileLink": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=8&lang=en-us",
-    "Link": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=8&lang=en-us"
-  },
-  {
-    "DateTime": "2021-11-23T09:00:00+00:00",
-    "EpochDateTime": 1637658000,
-    "WeatherIcon": 3,
-    "IconPhrase": "Partly sunny",
-    "HasPrecipitation": false,
-    "IsDaylight": true,
-    "Temperature": {
-      "Value": 38,
+    "DewPoint": {
+      "Value": 25,
       "Unit": "F",
       "UnitType": 18
     },
+    "Wind": {
+      "Speed": {
+        "Value": 3.5,
+        "Unit": "mi/h",
+        "UnitType": 9
+      },
+      "Direction": {
+        "Degrees": 204,
+        "Localized": "SSW",
+        "English": "SSW"
+      }
+    },
+    "WindGust": {
+      "Speed": {
+        "Value": 6.9,
+        "Unit": "mi/h",
+        "UnitType": 9
+      }
+    },
+    "RelativeHumidity": 29,
+    "IndoorRelativeHumidity": 34,
+    "Visibility": {
+      "Value": 10,
+      "Unit": "mi",
+      "UnitType": 2
+    },
+    "Ceiling": {
+      "Value": 30000,
+      "Unit": "ft",
+      "UnitType": 0
+    },
+    "UVIndex": 2,
+    "UVIndexText": "Low",
     "PrecipitationProbability": 0,
-    "MobileLink": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=9&lang=en-us",
-    "Link": "http://www.accuweather.com/en/gb/london/ec4a-2/hourly-weather-forecast/328328?day=2&hbhhour=9&lang=en-us"
+    "ThunderstormProbability": 0,
+    "RainProbability": 0,
+    "SnowProbability": 0,
+    "IceProbability": 0,
+    "TotalLiquid": {
+      "Value": 0,
+      "Unit": "in",
+      "UnitType": 1
+    },
+    "Rain": {
+      "Value": 0,
+      "Unit": "in",
+      "UnitType": 1
+    },
+    "Snow": {
+      "Value": 0,
+      "Unit": "in",
+      "UnitType": 1
+    },
+    "Ice": {
+      "Value": 0,
+      "Unit": "in",
+      "UnitType": 1
+    },
+    "CloudCover": 6,
+    "Evapotranspiration": {
+      "Value": 0.01,
+      "Unit": "in",
+      "UnitType": 1
+    },
+    "SolarIrradiance": {
+      "Value": 1.1,
+      "Unit": "W/m²",
+      "UnitType": 33
+    },
+    "MobileLink": "http://www.accuweather.com/en/us/sun-valley-tx/75462/hourly-weather-forecast/2225072?day=1&hbhhour=14&lang=en-us",
+    "Link": "http://www.accuweather.com/en/us/sun-valley-tx/75462/hourly-weather-forecast/2225072?day=1&hbhhour=14&lang=en-us"
   }
 ]
