@@ -42,36 +42,39 @@ class WeatherAssistant:
             env_var_error_msg = f"Env. variable {str(e)} not found. Make sure it has been set in the current environment."
             raise KeyError(env_var_error_msg) from e
 
-    def get_hourly_forecast(self, n: int) -> list[dict]:
-        """Returns the forecast for the next n hours (n must be 1 or 12)."""
+    def get_hourly_forecast(self, n: int, details: bool = False) -> list[dict]:
+        """Returns a list of hourly forecasts for the next n hours (n must be either 1 or 12)."""
         if n not in (1, 12):
             raise ValueError("n must be 1 or 12.")
         request_url = f"http://dataservice.accuweather.com/forecasts/v1/hourly/{n}hour/{self.location_key}"
-        params = {'apikey': self.__api_key}
+        params = {'apikey': self.__api_key, 'details': details}
         response = requests.get(url=request_url, params=params)
         # See ../examples/http_responses/hourly
         return response.json()
 
-    def get_daily_forecast(self) -> dict:
+    def get_daily_forecast(self, details: bool = False) -> dict:
         """Returns the daily forecast for one day."""
         request_url = f"http://dataservice.accuweather.com/forecasts/v1/daily/1day/{self.location_key}"
-        params = {'apikey': self.__api_key, 'details': True}
+        params = {'apikey': self.__api_key, 'details': details}
         response = requests.get(url=request_url, params=params)
         # See ../examples/http_responses/daily
         return response.json()
 
-    def rain_check(self, day: dict) -> str:
-        """Takes a day (or night) value (dict-like) from a daily forecast as input.
-        Returns a notification if precipitation is expected, and an empty string otherwise."""
-        if day['HasPrecipitation']:
-            return "{} {} expected for {} hours.".format(
-                # These will be null if HasPrecipitation is False:
-                day['PrecipitationIntensity'],
-                day['PrecipitationType'].lower(),
-                day['HoursOfPrecipitation']
+    def rain_check(self, forecast: dict, hourly: bool = True) -> str:
+        """Takes a day, night, or hour forecast (dict-like) as input. Returns a
+        notification if precipitation is expected, and an empty string otherwise."""
+        msg = ''
+        if forecast['HasPrecipitation']:
+            msg = "{} {} expected".format(
+                forecast['PrecipitationIntensity'],
+                forecast['PrecipitationType'].lower()
             )
+            if hourly:
+                msg += " over the next hour."
+            else:
+                msg += " for {} hours.".format(forecast['HoursOfPrecipitation'])
 
-        return ''
+        return msg
 
     def send_sms(self, message: str) -> None:
         """Sends the given string as an SMS message through Twilio."""
@@ -85,23 +88,16 @@ class WeatherAssistant:
         print(f'Sent: {sms.date_created}')
 
     def exec_hourly(self) -> None:
-        """Executed hourly — checks the next 3 hours' precip. probability and sends a notification if present."""
-        msg = []
-        forecast = self.get_hourly_forecast(12)
-        # Check 3 hrs ahead for rain
-        for hour in forecast[:3]:
-            if hour['PrecipitationProbability'] >= 40:
-                time = datetime.fromisoformat(hour['DateTime']).strftime('%-I:%M')
-                pc = hour['PrecipitationProbability']
-                msg.append(f'{time}:'.ljust(8) + f'{pc}%')
-
+        """Executed hourly — checks the next hour for precipitation and sends a notification if expected."""
+        forecast = self.get_hourly_forecast(1, details=True)[0]
+        # Check precipitation
+        msg = self.rain_check(forecast)
         if msg:
-            msg.insert(0, 'Precipitation expected:')
-            self.send_sms('\n'.join(msg))
+            self.send_sms(msg)
 
     def exec_daily(self) -> None:
         """Executed daily (in the morning) — generates a forecast summary and sends as a SMS message."""
-        forecast = self.get_daily_forecast()['DailyForecasts'][0]
+        forecast = self.get_daily_forecast(details=True)['DailyForecasts'][0]
         msg = ["Good morning! Here's today's forecast:"]
         # Forecast description
         msg.append(forecast['Day']['LongPhrase'] + '.')
@@ -109,7 +105,7 @@ class WeatherAssistant:
         high = int(forecast['Temperature']['Maximum']['Value'])
         msg.append(f'High of {high} degrees.')
         # Check for rain
-        precip_msg = self.rain_check(forecast['Day'])
+        precip_msg = self.rain_check(forecast['Day'], hourly=False)
         if precip_msg:
             msg.append(precip_msg)
 
@@ -117,7 +113,7 @@ class WeatherAssistant:
 
     def exec_nightly(self) -> None:
         """Generates a nightly forecast summary and sends as a SMS message (similar to exec_daily)."""
-        forecast = self.get_daily_forecast()['DailyForecasts'][0]
+        forecast = self.get_daily_forecast(details=True)['DailyForecasts'][0]
         msg = ["Here's tonight's forecast:"]
         # Description
         msg.append(forecast['Night']['LongPhrase'] + '.')
@@ -130,7 +126,7 @@ class WeatherAssistant:
             temp_msg += '.'
         msg.append(temp_msg)
         # Precipitation
-        precip_msg = self.rain_check(forecast['Night'])
+        precip_msg = self.rain_check(forecast['Night'], hourly=False)
         if precip_msg:
             msg.append(precip_msg)
 
