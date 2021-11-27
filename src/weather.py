@@ -60,7 +60,7 @@ class WeatherAssistant:
         # See ../examples/http_responses/daily
         return response.json()
 
-    def rain_check(self, forecast: dict, hourly: bool = True) -> str:
+    def rain_check(self, forecast: dict, hourly: bool) -> str:
         """Takes a day, night, or hour forecast (dict-like) as input. Returns a
         notification if precipitation is expected, and an empty string otherwise."""
         msg = ''
@@ -91,7 +91,7 @@ class WeatherAssistant:
         """Executed hourly — checks the next hour for precipitation and sends a notification if expected."""
         forecast = self.get_hourly_forecast(1, details=True)[0]
         # Check precipitation
-        msg = self.rain_check(forecast)
+        msg = self.rain_check(forecast, hourly=True)
         if msg:
             self.send_sms(msg)
 
