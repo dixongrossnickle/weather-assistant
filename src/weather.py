@@ -1,19 +1,25 @@
 import os
 import requests
+from collections import namedtuple
 from datetime import datetime
 from twilio.rest import Client
 
 # This file contains all of the code for interacting with AccuWeather API.
 # Reference: https://developer.accuweather.com/apis
 
+Location = namedtuple('Location', ['key', 'name'])
 
-def location_key_search(query_str: str, api_key: str) -> str:
-    """Calls AccuWeather location search API and returns the first result."""
+
+def location_search(query_str: str, api_key: str) -> Location:
+    """Calls AccuWeather location search API using the given query string
+    and returns the first result as a Location namedtuple."""
     request_url = "http://dataservice.accuweather.com/locations/v1/cities/search"
     params = {'q': query_str, 'apikey': api_key}
     response = requests.get(url=request_url, params=params)
+    # 1st result
+    res = response.json()[0]
 
-    return response.json()[0]['Key']
+    return Location(res['Key'], res['LocalizedName'])
 
 
 class WeatherAssistant:
@@ -32,9 +38,12 @@ class WeatherAssistant:
             self.__from = os.environ['FROM_PHONE_NUMBER']
             self.__to = os.environ['TO_PHONE_NUMBER']
             if location_str is None:
-                self.location_key = os.environ['DEFAULT_LOCATION']
+                # I store permanent loc. info in the env. to reduce API calls
+                self.location = Location(
+                    os.environ['DEFAULT_LOCATION_KEY'],
+                    os.environ['DEFAULT_LOCATION_NAME'])
             else:
-                self.location_key = location_key_search(location_str, self.__api_key)
+                self.location = location_search(location_str, self.__api_key)
 
         except KeyError as e:
             env_var_error_msg = f"Env. variable {str(e)} not found. Make sure it has been set in the current environment."
@@ -44,7 +53,7 @@ class WeatherAssistant:
         """Returns a list of hourly forecasts for the next n hours (n must be either 1 or 12)."""
         if n not in (1, 12):
             raise ValueError("n must be 1 or 12.")
-        request_url = f"http://dataservice.accuweather.com/forecasts/v1/hourly/{n}hour/{self.location_key}"
+        request_url = f"http://dataservice.accuweather.com/forecasts/v1/hourly/{n}hour/{self.location.key}"
         params = {'apikey': self.__api_key, 'details': details}
         response = requests.get(url=request_url, params=params)
         # See ../examples/http_responses/hourly
@@ -52,7 +61,7 @@ class WeatherAssistant:
 
     def get_daily_forecast(self, details: bool = False) -> dict:
         """Returns the daily forecast for one day."""
-        request_url = f"http://dataservice.accuweather.com/forecasts/v1/daily/1day/{self.location_key}"
+        request_url = f"http://dataservice.accuweather.com/forecasts/v1/daily/1day/{self.location.key}"
         params = {'apikey': self.__api_key, 'details': details}
         response = requests.get(url=request_url, params=params)
         # See ../examples/http_responses/daily
@@ -68,9 +77,11 @@ class WeatherAssistant:
                 forecast['PrecipitationType'].lower()
             )
             if hourly:
+                msg = f"{self.location.name.upper()}: " + msg
                 msg += " over the next hour."
             else:
-                msg += " for {} hours.".format(forecast['HoursOfPrecipitation'])
+                # will be part of a greater daily/nightly notification
+                msg += f" for {forecast['HoursOfPrecipitation']} hours."
 
         return msg
 
@@ -96,7 +107,7 @@ class WeatherAssistant:
     def exec_daily(self) -> None:
         """Executed daily (in the morning) — generates a forecast summary and sends as a SMS message."""
         forecast = self.get_daily_forecast(details=True)['DailyForecasts'][0]
-        msg = ["Good morning! Here's today's forecast:"]
+        msg = [f"Today's forecast for {self.location.name}:"]
         # Forecast description
         msg.append(forecast['Day']['LongPhrase'] + '.')
         # Check high temp
@@ -112,7 +123,7 @@ class WeatherAssistant:
     def exec_nightly(self) -> None:
         """Generates a nightly forecast summary and sends as a SMS message (similar to exec_daily)."""
         forecast = self.get_daily_forecast(details=True)['DailyForecasts'][0]
-        msg = ["Here's tonight's forecast:"]
+        msg = [f"Tonight's forecast for {self.location.name}:"]
         # Description
         msg.append(forecast['Night']['LongPhrase'] + '.')
         # Check low temp; add tank heater reminder if cold
