@@ -7,7 +7,7 @@ from twilio.rest import Client
 # Reference: https://developer.accuweather.com/apis
 
 
-def location_key_search(api_key: str, query_str: str) -> str:
+def location_key_search(query_str: str, api_key: str) -> str:
     """Calls AccuWeather location search API and returns the first result."""
     request_url = "http://dataservice.accuweather.com/locations/v1/cities/search"
     params = {'q': query_str, 'apikey': api_key}
@@ -17,8 +17,6 @@ def location_key_search(api_key: str, query_str: str) -> str:
 
 
 class WeatherAssistant:
-    location_key = None
-
     def __init__(self, location_str: str = None):
         """
         A class with methods for periodic weather monitoring and notifications.
@@ -36,7 +34,7 @@ class WeatherAssistant:
             if location_str is None:
                 self.location_key = os.environ['DEFAULT_LOCATION']
             else:
-                self.location_key = location_key_search(self.__api_key, location_str)
+                self.location_key = location_key_search(location_str, self.__api_key)
 
         except KeyError as e:
             env_var_error_msg = f"Env. variable {str(e)} not found. Make sure it has been set in the current environment."
