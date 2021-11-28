@@ -129,7 +129,7 @@ class WeatherAssistant:
         # Check low temp; add tank heater reminder if cold
         low = int(forecast['Temperature']['Minimum']['Value'])
         temp_msg = f'Low of {low} degrees'
-        if low <= 36:
+        if low <= 34:
             temp_msg += ' \u2014 turn on your tank heaters!'
         else:
             temp_msg += '.'
