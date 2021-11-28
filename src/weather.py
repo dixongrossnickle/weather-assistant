@@ -1,7 +1,6 @@
 import os
 import requests
 from collections import namedtuple
-from datetime import datetime
 from twilio.rest import Client
 
 # This file contains all of the code for interacting with AccuWeather API.
