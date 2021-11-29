@@ -15,7 +15,7 @@ def location_search(query_str: str, api_key: str) -> Location:
     request_url = "http://dataservice.accuweather.com/locations/v1/cities/search"
     params = {'q': query_str, 'apikey': api_key}
     response = requests.get(url=request_url, params=params)
-    # 1st result
+    # 1st search result
     res = response.json()[0]
 
     return Location(res['Key'], res['LocalizedName'])
@@ -26,9 +26,8 @@ class WeatherAssistant:
         """
         A class with methods for periodic weather monitoring and notifications.
 
-        If None is passed to init, the DEFAULT_LOCATION environment variable will be used
-        as the location key. If a string is passed, location key is retrieved from
-        AccuWeather's Locations search API (first search result).
+        If a string is passed to init, location is retrieved from AccuWeather search API.
+        If nothing is passed, location is set from environment variables.
         """
         try:
             self.__api_key = os.environ['ACCUWEATHER_API_KEY']
@@ -37,7 +36,6 @@ class WeatherAssistant:
             self.__from = os.environ['FROM_PHONE_NUMBER']
             self.__to = os.environ['TO_PHONE_NUMBER']
             if location_str is None:
-                # I store permanent loc. info in the env. to reduce API calls
                 self.location = Location(
                     os.environ['DEFAULT_LOCATION_KEY'],
                     os.environ['DEFAULT_LOCATION_NAME'])
@@ -55,7 +53,7 @@ class WeatherAssistant:
         request_url = f"http://dataservice.accuweather.com/forecasts/v1/hourly/{n}hour/{self.location.key}"
         params = {'apikey': self.__api_key, 'details': details}
         response = requests.get(url=request_url, params=params)
-        # See ../examples/http_responses/hourly
+        # JSON structure: ../examples/http_responses/hourly
         return response.json()
 
     def get_daily_forecast(self, details: bool = False) -> dict:
@@ -63,7 +61,7 @@ class WeatherAssistant:
         request_url = f"http://dataservice.accuweather.com/forecasts/v1/daily/1day/{self.location.key}"
         params = {'apikey': self.__api_key, 'details': details}
         response = requests.get(url=request_url, params=params)
-        # See ../examples/http_responses/daily
+        # JSON structure: ../examples/http_responses/daily
         return response.json()
 
     def rain_check(self, forecast: dict, hourly: bool) -> str:
@@ -78,8 +76,7 @@ class WeatherAssistant:
             if hourly:
                 msg = f"{self.location.name.upper()}: " + msg
                 msg += " over the next hour."
-            else:
-                # will be part of a greater daily/nightly notification
+            else:    # part of a greater daily/nightly notification
                 msg += f" for {forecast['HoursOfPrecipitation']} hours."
 
         return msg
@@ -112,7 +109,7 @@ class WeatherAssistant:
         # Check high temp
         high = int(forecast['Temperature']['Maximum']['Value'])
         msg.append(f'High of {high} degrees.')
-        # Check for rain
+        # Check for precipitation
         precip_msg = self.rain_check(forecast['Day'], hourly=False)
         if precip_msg:
             msg.append(precip_msg)
@@ -127,13 +124,13 @@ class WeatherAssistant:
         msg.append(forecast['Night']['LongPhrase'] + '.')
         # Check low temp; add tank heater reminder if cold
         low = int(forecast['Temperature']['Minimum']['Value'])
-        temp_msg = f'Low of {low} degrees'
+        low_msg = f'Low of {low} degrees'
         if low <= 34:
-            temp_msg += ' \u2014 turn on your tank heaters!'
+            low_msg += ' \u2014 turn on your tank heaters!'
         else:
-            temp_msg += '.'
-        msg.append(temp_msg)
-        # Precipitation
+            low_msg += '.'
+        msg.append(low_msg)
+        # Check precipitation
         precip_msg = self.rain_check(forecast['Night'], hourly=False)
         if precip_msg:
             msg.append(precip_msg)

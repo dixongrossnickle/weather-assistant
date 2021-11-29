@@ -19,7 +19,7 @@ def main(argv: list[str]):
     if arg not in VALID_ARGS:
         print(f"Invalid Argument: {arg}", HELP_MESSAGE, sep='\n')
         sys.exit(2)
-    # Execute appropriate method
+    # Execute weather check
     wa = WeatherAssistant()
     if arg == 'daily':
         wa.exec_daily()
