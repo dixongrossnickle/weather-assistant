@@ -65,18 +65,19 @@ class WeatherAssistant:
         return response.json()
 
     def rain_check(self, forecast: dict, hourly: bool) -> str:
-        """Takes a day, night, or hour forecast (dict-like) as input. Returns a
-        notification if precipitation is expected, and an empty string otherwise."""
+        """Takes a day/night/hour forecast (dict-like) as input. Returns a
+        notification if precipitation is expected, and an empty string otherwise.
+        The 'hourly' param dictates the wording of the returned notification."""
         msg = ''
         if forecast['HasPrecipitation']:
             msg = "{} {} expected".format(
                 forecast['PrecipitationIntensity'],
                 forecast['PrecipitationType'].lower()
             )
-            if hourly:
+            if hourly:   # form entire msg for self.exec_hourly
                 msg = f"{self.location.name.upper()}: " + msg
                 msg += " over the next hour."
-            else:    # part of a greater daily/nightly notification
+            else:        # part of a greater daily/nightly notification
                 msg += f" for {forecast['HoursOfPrecipitation']} hours."
 
         return msg
