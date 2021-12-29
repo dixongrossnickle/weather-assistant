@@ -5,10 +5,10 @@ from weather import *
 VALID_ARGS = ('daily', 'hourly', 'nightly', )
 
 HELP_MESSAGE = (">>> python run.py <arg>\nValid args:\n" +
-                '\n'.join([f'--{arg}' for arg in VALID_ARGS]))
+                '\n'.join(f'--{arg}' for arg in VALID_ARGS))
 
 
-def main(argv: list[str]):
+def main(argv: list[str]) -> None:
     # Check number of arguments
     if len(argv) != 1:
         print(f"Invalid Argument Count: 1 argument {'permitted' if len(argv) else 'required'}.",

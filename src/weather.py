@@ -1,10 +1,9 @@
+# This file contains all of the code for interacting with AccuWeather API.
+# Reference: https://developer.accuweather.com/apis
 import os
 import requests
 from collections import namedtuple
 from twilio.rest import Client
-
-# This file contains all of the code for interacting with AccuWeather API.
-# Reference: https://developer.accuweather.com/apis
 
 Location = namedtuple('Location', ['key', 'name'])
 
