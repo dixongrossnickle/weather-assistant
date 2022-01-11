@@ -126,7 +126,7 @@ class WeatherAssistant:
         low = int(forecast['Temperature']['Minimum']['Value'])
         low_msg = f'Low of {low} degrees'
         if low <= 34:
-            low_msg += ' \u2014 turn on your tank heaters!'
+            low_msg += ' \u2014 FREEZING!'
         else:
             low_msg += '.'
         msg.append(low_msg)
