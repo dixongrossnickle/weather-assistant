@@ -10,3 +10,6 @@ secret/
 
 # VS code
 .vscode/
+
+# DS_Store
+**/.DS_Store
