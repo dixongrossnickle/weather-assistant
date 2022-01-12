@@ -1,27 +1,43 @@
 # This file contains all of the code for interacting with AccuWeather API.
 # Reference: https://developer.accuweather.com/apis
-import os
 import requests
 from collections import namedtuple
+from os import environ as OS_ENVIRON
 from twilio.rest import Client
 
 Location = namedtuple('Location', ['key', 'name'])
 
 
-def location_search(query_str: str, api_key: str) -> Location:
+def location_key_search(api_key: str, **kwargs) -> Location:
     """Calls AccuWeather location search API using the given query string
     and returns the first result as a Location namedtuple."""
-    request_url = "http://dataservice.accuweather.com/locations/v1/cities/search"
-    params = {'q': query_str, 'apikey': api_key}
+    if len(kwargs) != 1:
+        raise TypeError('Function takes 1 keyword arg that specifies the type of search to perform.')
+    for kw, arg in kwargs.items():
+        kw, arg = kw, arg
+    # Match URL to keyword
+    if kw == 'text_search':
+        request_url = 'http://dataservice.accuweather.com/locations/v1/cities/search'
+    elif kw == 'coord_search':
+        request_url = 'http://dataservice.accuweather.com/locations/v1/cities/geoposition/search'
+    else:
+        raise TypeError(f"Valid keywords are: {', '.join('text_search', 'coord_search')}.")
+    # Make request
+    params = {'q': arg, 'apikey': api_key}
     response = requests.get(url=request_url, params=params)
-    # 1st search result
-    res = response.json()[0]
+    json = response.json()
+    # If JSON is list, the text_search API was called; take the top result.
+    if isinstance(json, list):
+        result = json[0]
+    # Otherwise, coord_search API was called (returns 1 result as dict)
+    else:
+        result = json
 
-    return Location(res['Key'], res['LocalizedName'])
+    return Location(result['Key'], result['LocalizedName'])
 
 
 class WeatherAssistant:
-    def __init__(self, location_str: str = None):
+    def __init__(self, location_string: str = None):
         """
         A class with methods for periodic weather monitoring and notifications.
 
@@ -29,17 +45,15 @@ class WeatherAssistant:
         If nothing is passed, location is set from environment variables.
         """
         try:
-            self.__api_key = os.environ['ACCUWEATHER_API_KEY']
-            self.__account_id = os.environ['TWILIO_ACCOUNT_SID']
-            self.__auth_token = os.environ['TWILIO_AUTH_TOKEN']
-            self.__from = os.environ['FROM_PHONE_NUMBER']
-            self.__to = os.environ['TO_PHONE_NUMBER']
-            if location_str is None:
-                self.location = Location(
-                    os.environ['DEFAULT_LOCATION_KEY'],
-                    os.environ['DEFAULT_LOCATION_NAME'])
+            self.__api_key = OS_ENVIRON['ACCUWEATHER_API_KEY']
+            self.__account_id = OS_ENVIRON['TWILIO_ACCOUNT_SID']
+            self.__auth_token = OS_ENVIRON['TWILIO_AUTH_TOKEN']
+            self.__from = OS_ENVIRON['FROM_PHONE_NUMBER']
+            self.__to = OS_ENVIRON['TO_PHONE_NUMBER']
+            if location_string is None:
+                self.location = location_key_search(self.__api_key, coord_search = OS_ENVIRON['DEFAULT_LOCATION'])
             else:
-                self.location = location_search(location_str, self.__api_key)
+                self.location = location_key_search(self.__api_key, text_search = location_string)
 
         except KeyError as e:
             env_var_error_msg = f"Env. variable {str(e)} not found. Make sure it has been set in the current environment."
