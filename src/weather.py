@@ -122,7 +122,7 @@ class WeatherAssistant:
         msg = [f"Tonight's forecast for {self.location.name}:"]
         # Description
         msg.append(forecast['Night']['LongPhrase'] + '.')
-        # Check low temp; add tank heater reminder if cold
+        # Check low temp
         low = int(forecast['Temperature']['Minimum']['Value'])
         msg.append(f'Low of {low} degrees.')
         # Check precipitation
