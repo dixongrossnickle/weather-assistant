@@ -124,12 +124,7 @@ class WeatherAssistant:
         msg.append(forecast['Night']['LongPhrase'] + '.')
         # Check low temp; add tank heater reminder if cold
         low = int(forecast['Temperature']['Minimum']['Value'])
-        low_msg = f'Low of {low} degrees'
-        if low <= 34:
-            low_msg += ' \u2014 FREEZING!'
-        else:
-            low_msg += '.'
-        msg.append(low_msg)
+        msg.append(f'Low of {low} degrees.')
         # Check precipitation
         precip_msg = self.rain_check(forecast['Night'], hourly=False)
         if precip_msg:
