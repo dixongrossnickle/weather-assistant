@@ -20,13 +20,13 @@ def main(argv: list[str]) -> None:
         print(f"Invalid Argument: {arg}", HELP_MESSAGE, sep='\n')
         sys.exit(2)
     # Execute weather check
-    wa = WeatherAssistant()
+    assistant = WeatherAssistant()
     if arg == 'daily':
-        wa.exec_daily()
+        assistant.exec_daily()
     elif arg == 'hourly':
-        wa.exec_hourly()
+        assistant.exec_hourly()
     elif arg == 'nightly':
-        wa.exec_nightly()
+        assistant.exec_nightly()
 
 
 if __name__ == "__main__":
