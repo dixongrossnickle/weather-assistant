@@ -12,7 +12,8 @@ def location_key_search(api_key: str, **kwargs) -> Location:
     """Calls AccuWeather location search API using the given query string
     and returns the first result as a Location namedtuple."""
     if len(kwargs) != 1:
-        raise TypeError('Function takes 1 keyword arg that specifies the type of search to perform.')
+        raise TypeError(
+            'Function takes 1 keyword arg that specifies the type of search to perform.')
     for kw, arg in kwargs.items():
         kw, arg = kw, arg
     # Match URL to keyword
@@ -21,7 +22,8 @@ def location_key_search(api_key: str, **kwargs) -> Location:
     elif kw == 'coord_search':
         request_url = 'http://dataservice.accuweather.com/locations/v1/cities/geoposition/search'
     else:
-        raise TypeError(f"Valid keywords are: {', '.join('text_search', 'coord_search')}.")
+        raise TypeError(
+            f"Valid keywords are: {', '.join('text_search', 'coord_search')}.")
     # Make request
     params = {'q': arg, 'apikey': api_key}
     response = requests.get(url=request_url, params=params)
@@ -51,9 +53,11 @@ class WeatherAssistant:
             self.__from = OS_ENVIRON['FROM_PHONE_NUMBER']
             self.__to = OS_ENVIRON['TO_PHONE_NUMBER']
             if location_string is None:
-                self.location = location_key_search(self.__api_key, coord_search = OS_ENVIRON['DEFAULT_LOCATION'])
+                self.location = location_key_search(
+                    self.__api_key, coord_search=OS_ENVIRON['DEFAULT_LOCATION'])
             else:
-                self.location = location_key_search(self.__api_key, text_search = location_string)
+                self.location = location_key_search(
+                    self.__api_key, text_search=location_string)
 
         except KeyError as e:
             env_var_error_msg = f"Env. variable {str(e)} not found. Make sure it has been set in the current environment."
